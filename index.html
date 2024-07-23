@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <title>Game of 24</title>
+        <link rel="stylesheet" href="./bulma.min.css">
+        <script src="./jquery.min.js"></script>
+        <script type="text/javascript" src="./24-expressions.js"></script>
+        <script type="text/javascript" src="./24.js"></script>
+
+        <style>
+body {
+    text-align: center;
+}
+
+.question {
+    width: 50%;
+    display: inline-block;
+    margin-top: 30px;
+}
+
+.question .numbers {
+    margin-top: 30px;
+}
+
+.answer {
+    margin-top: 50px;
+}
+
+.answer_input {
+    margin-top: 30px;
+}
+
+.answer_input input {
+    width: 30px;
+    text-align: center;
+}
+
+.credit {
+    margin-top: 100px
+}
+
+.solutions div {
+    margin-top: 10px;
+}
+
+.buttons {
+    width:50%;
+    margin-top: 50px;
+    display: inline-block;
+}
+
+        </style>
+
+        <script>
+
+function showQuestion(question){
+    for(var i=0; i<question.length; i++){
+        $("#number_" + i).text(question[i]);
+        $("#input_" + i).val(question[i]);
+    }
+}
+
+function showAnswer(solutions){
+    var solutionsDiv = $(".answer .solutions");
+
+    solutionsDiv.empty();
+
+    if(!solutions.length){
+        solutionsDiv.append("<div>No answer is found.</div>")
+    }
+    else {
+        for(var i=0; i<solutions.length; i++){
+            console.log("@48", solutions[i]);
+            solutionsDiv.append("<div>" + solutions[i] + "</div>");
+        }
+    }
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max) + 1;
+}
+
+function getRandomQuestion(){
+    var question = [];
+    var maxTry = 100;
+    var totalTry = 0;
+    while(true){
+        question = [];
+
+        for(var i=0; i<4; i++){
+            var num = getRandomInt(13);
+            question.push(num);
+        }
+
+        console.log("Trying question:", question);
+        var solutions = solve(question);
+        if(solutions.length){
+            console.log("solution found!");
+            break;
+        }
+
+        totalTry += 1;
+
+        if(totalTry > maxTry){
+            // to prevent deadloop
+            alert("dead loop found");
+            break;
+        }
+    }
+
+    return question;
+}
+
+$(document).ready(function(){
+    var question = getRandomQuestion();
+    showQuestion(question);
+    $("#show_answer").click(function(){
+        for(var i=0; i<4; i++){
+            question[i] = $("#input_" + i).val();
+        }
+        var solutions = solve(question);
+        console.log("@25", solutions);
+        showAnswer(solutions);
+    });
+
+    $("#next_question").click(function(){
+        var question = getRandomQuestion();
+        showQuestion(question);
+        $(".answer .solutions").empty();
+
+    });
+
+    $("input.num").click(function(){
+        $(this).select();
+    });
+
+    if('serviceWorker' in navigator) {
+        const registerServiceWorker = async () => {
+            const sw = await navigator.serviceWorker.register('./service-worker.js?v=4');
+            console.log("service worker registered", sw);
+        };
+
+        registerServiceWorker();
+    }
+    else {
+        console.log("service worker not found in navigator, may be https not enabled?");
+    }
+});
+        </script>
+    </head>
+    <body>
+        <div class='question'>
+            <div class='is-size-2'>Question</div>
+            <div class="numbers">
+                <div class="columns">
+                    <div class="column is-half is-size-3" id="number_0"></div>
+                    <div class="column is-half is-size-3" id="number_1"></div>
+                </div>
+                <div class="columns">
+                    <div class="column is-half is-size-3" id="number_2"></div>
+                    <div class="column is-half is-size-3" id="number_3"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class='answer'>
+            <div class="answer_input">
+                <input class="num" id="input_0">
+                <input class="num" id="input_1">
+                <input class="num" id="input_2">
+                <input class="num" id="input_3">
+            </div>
+
+            <div class="buttons">
+                <div class="columns">
+                    <div class="column">
+                        <button id="next_question" class="button">Next Question</button>
+                    </div>
+                    <div class="column">
+                        <button id="show_answer" class="button">Show Answer</button>
+                    </div>
+                </div>
+            </div>
+            <div class='solutions'></div>
+        </div>
+
+        <div class="credit">
+            <p>Algorithm by <a target='_blank' href='https://github.com/auntyellow/24'>auntyellow<a/></p>
+        </div>
+    </body>
+</html>
