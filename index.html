@@ -115,16 +115,37 @@ function getRandomQuestion(){
     return question;
 }
 
+
+function getSolutions() {
+    var question = []
+    for(var i=0; i<4; i++){
+        question[i] = $("#input_" + i).val();
+    }
+    var solutions = solve(question);
+    console.log("solutions", solutions);
+    return solutions;
+}
+
 $(document).ready(function(){
     var question = getRandomQuestion();
     showQuestion(question);
     $("#show_answer").click(function(){
-        for(var i=0; i<4; i++){
-            question[i] = $("#input_" + i).val();
-        }
-        var solutions = solve(question);
-        console.log("@25", solutions);
+        var solutions = getSolutions();
         showAnswer(solutions);
+    });
+
+    $("#show_partial_answer").click(function(){
+        var solutions = getSolutions();
+        var maskedSolutions = []
+       for(var i=0; i < solutions.length; i++){
+          var solution = solutions[i];
+          var maskSize = solution.length - 3;
+
+          var maskedSolution = "?".repeat(maskSize) + solution.substring(maskSize);
+          maskedSolutions.push(maskedSolution)
+
+       }
+        showAnswer(maskedSolutions);
     });
 
     $("#next_question").click(function(){
@@ -181,7 +202,10 @@ $(document).ready(function(){
                         <button id="next_question" class="button">Next Question</button>
                     </div>
                     <div class="column">
-                        <button id="show_answer" class="button">Show Answer</button>
+                        <button id="show_partial_answer" class="button">Show Partial Answer</button>
+                    </div>
+                    <div class="column">
+                        <button id="show_answer" class="button">Show Full Answer</button>
                     </div>
                 </div>
             </div>
